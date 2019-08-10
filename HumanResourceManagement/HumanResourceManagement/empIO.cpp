@@ -11,6 +11,8 @@ string enum_position[4] = {"Manager", "Salesman", "Technician", "Sales_manager"}
  */
 auto run(std::string file_name) -> void
 {
+	vector<employee*> employees;
+	load(file_name, employees);
 	while (true)
 	{
 		index(file_name);
@@ -25,22 +27,24 @@ auto run(std::string file_name) -> void
 
 			//修改功能
 		case 2:
-			modify(file_name);
+			modify(file_name, employees);
 			break;
 
 			//查询功能
 		case 3:
-			search(file_name);
+			search(file_name, employees);
 			break;
 
 			//保存新文件
 		case 4:
 			save(file_name);
+			load(file_name, employees);
 			break;
 
 			//选择文件
 		case 5:
 			change_file(file_name);
+			load(file_name, employees);
 			break;
 
 			//退出
@@ -151,8 +155,9 @@ auto explore(const std::string& file_name) -> void
 /**
  * \brief 
  * \param file_name 
+ * \param employees 
  */
-auto modify(const std::string& file_name) -> void
+auto modify(const std::string& file_name, vector<employee*>& employees) -> void
 {
 	system("cls");
 	std::cout << "##########**********##########**********##########\n"
@@ -165,8 +170,6 @@ auto modify(const std::string& file_name) -> void
 		<< "                     3. 修改\n"
 		<< "                     4. 返回\n";
 
-	vector<employee*> employees;
-	load(file_name, employees);
 
 	auto input = 0;
 	while (true)
@@ -271,7 +274,12 @@ auto modify(const std::string& file_name) -> void
 	}
 }
 
-auto search(const std::string& file_name) -> void
+/**
+ * \brief 
+ * \param file_name 
+ * \param employees 
+ */
+auto search(const std::string& file_name, vector<employee*>& employees) -> void
 {
 	system("cls");
 	std::cout << "##########**********##########**********##########\n"
@@ -279,8 +287,6 @@ auto search(const std::string& file_name) -> void
 		<< "##########**********##########**********##########\n"
 		<< "                     查询模式\n";
 
-	vector<employee*> employees;
-	load(file_name, employees);
 
 	std::cout << "\n请输入要查询的id或姓名：\n";
 	std::string target;
@@ -296,6 +302,25 @@ auto search(const std::string& file_name) -> void
 				{
 					find = true;
 					it->print();
+					std::cout << "显示完毕\n输入1返回主界面：";
+
+					auto input = 0;
+					while (true)
+					{
+						try
+						{
+							std::cin >> input;
+							if (input != 1)
+							{
+								throw input_error();
+							}
+							return;
+						}
+						catch (input_error& i)
+						{
+							std::cerr << i.what() << '\n';
+						}
+					}
 				}
 			}
 		}
@@ -306,7 +331,26 @@ auto search(const std::string& file_name) -> void
 				if (it->get_name() == target)
 				{
 					find = true;
-					cout << it;
+					it->print();
+					std::cout << "显示完毕\n输入1返回主界面：";
+
+					auto input = 0;
+					while (true)
+					{
+						try
+						{
+							std::cin >> input;
+							if (input != 1)
+							{
+								throw input_error();
+							}
+							return;
+						}
+						catch (input_error& i)
+						{
+							std::cerr << i.what() << '\n';
+						}
+					}
 				}
 			}
 		}
@@ -321,7 +365,11 @@ auto search(const std::string& file_name) -> void
 	}
 }
 
-auto change_file(std::string file_name) -> void
+/**
+ * \brief 
+ * \param file_name 
+ */
+auto change_file(std::string &file_name) -> void
 {
 	system("cls");
 	std::cout << "##########**********##########**********##########\n"
@@ -361,7 +409,11 @@ auto change_file(std::string file_name) -> void
 	}
 }
 
-auto save(std::string file_name) -> void
+/**
+ * \brief 
+ * \param file_name 
+ */
+auto save(std::string &file_name) -> void
 {
 	system("cls");
 	std::cout << "##########**********##########**********##########\n"
@@ -429,8 +481,14 @@ auto save(std::string file_name) -> void
 	}
 }
 
+/**
+ * \brief 
+ * \param file_name 
+ * \param employees 
+ */
 auto load(const std::string& file_name, vector<employee*>& employees) -> void
 {
+	employees.clear();
 	try
 	{
 		fs.open(file_name.c_str(), std::ios::in);
@@ -478,28 +536,27 @@ auto load(const std::string& file_name, vector<employee*>& employees) -> void
 					double total_sales_value, commission_rate, monthly_salary;
 					string name;
 					fs >> id >> name >> grade >> monthly_salary >> commission_rate >> total_sales_value;
-					sales_manager sales_manager(id, grade, name, total_sales_value);
+					employee* pemp = new sales_manager(id, grade, name, total_sales_value);
 					char c;
-					while (cin.get(c) && c != ']')
+					fs.get(c);
+					while (fs.get(c) && (c == '[' || c == ',' && fs.peek()!=']'))
 					{
 						int i;
-						cin >> i;
-						if (i <= 0)break;
-						// 如果sales_manager.subordinate_salesman为空，即读入为[]，这样操作会带来问题
-						// 测试得到vs会将其转为0，故这里尝试使用一个if安全地解决问题
-						sales_manager.subordinate_salesman.push_back(i);
+						fs >> i;
+						pemp->set_sub(i);
 					}
+					employees.push_back(pemp);
 				}
 				else
 				{
 					// 不合规范的文件
 				}
-				if(count == 1)
+				if (count == 1)
 				{
 					employees[0]->initial();
 				}
 				fs.get();
-				if (fs.peek() == '\n')break;
+				//if (fs.peek() == '\n')break;
 			}
 			fs.close();
 			if (is_empty)
@@ -518,6 +575,10 @@ auto load(const std::string& file_name, vector<employee*>& employees) -> void
 	}
 }
 
+/**
+ * \brief 
+ * \param employees 
+ */
 auto mod_add(vector<employee*>& employees) -> void
 {
 	system("cls");
@@ -583,13 +644,16 @@ auto mod_add(vector<employee*>& employees) -> void
 					std::cin >> name;
 					std::cout << "\n请依次输入等级、总销售额: ";
 					std::cin >> grade >> total_sales_value;
-					sales_manager sales_manager(grade, name, total_sales_value);
+					employee* pemp = new sales_manager(grade, name, total_sales_value);
 					std::cout << "\n请输入销售经理手下销售人员的id（正整数），以空格或回车隔开，任意字符结尾\n";
 					unsigned int id;
 					while (cin >> id)
 					{
-						sales_manager.subordinate_salesman.push_back(id);
+						pemp->set_sub(id);
 					}
+					cin.clear();
+					
+					employees.push_back(pemp);
 					return;
 				}
 			default:
@@ -605,6 +669,10 @@ auto mod_add(vector<employee*>& employees) -> void
 	}
 }
 
+/**
+ * \brief 
+ * \param employees 
+ */
 auto mod_delete(vector<employee*>& employees) -> void
 {
 	system("cls");
@@ -699,6 +767,10 @@ auto mod_delete(vector<employee*>& employees) -> void
 	}
 }
 
+/**
+ * \brief 
+ * \param employees 
+ */
 auto mod_modify(vector<employee*>& employees) -> void
 {
 	system("cls");
@@ -731,7 +803,7 @@ auto mod_modify(vector<employee*>& employees) -> void
 							std::cin >> input;
 							if (input == 1)
 							{
-								std::cout << "1 改名  2 改变等级  3其他\n";
+								//std::cout << "1 改名  2 改变等级  3其他\n";
 								//Manager
 								if (it->get_position() == enum_position[0])
 								{
@@ -740,7 +812,7 @@ auto mod_modify(vector<employee*>& employees) -> void
 									{
 										while (true)
 										{
-											std::cout << "1 改名  2 改变等级  3 返回\n";
+											std::cout << "1 改名  2 改变等级  3 升级为销售经理  4 返回\n";
 											std::cin >> input2;
 											if (input2 == 1)
 											{
@@ -760,6 +832,20 @@ auto mod_modify(vector<employee*>& employees) -> void
 											}
 											else if (input2 == 3)
 											{
+												employee* pemp = new sales_manager(it);
+												employees.insert(std::find(employees.begin(), employees.end(), it),
+												                 pemp);
+												employees.erase(remove(employees.begin(), employees.end(), it),
+												                employees.end());
+												cout << "已改变职位，按任意键后结束并返回\n";
+												char c[1000];
+												if (std::cin.getline(c, 1000))
+												{
+													return;
+												}
+											}
+											else if (input2 == 4)
+											{
 												return;
 											}
 											else
@@ -773,6 +859,7 @@ auto mod_modify(vector<employee*>& employees) -> void
 										std::cerr << i.what() << '\n';
 									}
 								}
+								//Salesman
 								if (it->get_position() == enum_position[1])
 								{
 									auto input2 = 0;
@@ -780,7 +867,7 @@ auto mod_modify(vector<employee*>& employees) -> void
 									{
 										while (true)
 										{
-											std::cout << "1 改名  2 改变等级  3 改变销售额  4 返回\n";
+											std::cout << "1 改名  2 改变等级  3 改变销售额  4 升级为销售经理  5 返回\n";
 											std::cin >> input2;
 											if (input2 == 1)
 											{
@@ -808,6 +895,20 @@ auto mod_modify(vector<employee*>& employees) -> void
 											}
 											else if (input2 == 4)
 											{
+												employee* pemp = new sales_manager(it);
+												employees.insert(std::find(employees.begin(), employees.end(), it),
+												                 pemp);
+												employees.erase(remove(employees.begin(), employees.end(), it),
+												                employees.end());
+												cout << "已改变职位，按任意键后结束并返回\n";
+												char c[1000];
+												if (std::cin.getline(c, 1000))
+												{
+													return;
+												}
+											}
+											else if (input2 == 5)
+											{
 												return;
 											}
 											else
@@ -821,7 +922,7 @@ auto mod_modify(vector<employee*>& employees) -> void
 										std::cerr << i.what() << '\n';
 									}
 								}
-								if (it->get_position() == enum_position[3])
+								if (it->get_position() == enum_position[2])
 								{
 									auto input2 = 0;
 									try
@@ -869,14 +970,14 @@ auto mod_modify(vector<employee*>& employees) -> void
 										std::cerr << i.what() << '\n';
 									}
 								}
-								if (it->get_position() == enum_position[0])
+								if (it->get_position() == enum_position[3])
 								{
 									auto input2 = 0;
 									try
 									{
 										while (true)
 										{
-											std::cout << "1 改名  2 改变等级  3 返回\n";
+											std::cout << "1 改名  2 改变等级  3 添加下属销售  4 返回\n";
 											std::cin >> input2;
 											if (input2 == 1)
 											{
@@ -895,6 +996,16 @@ auto mod_modify(vector<employee*>& employees) -> void
 												it->pay();
 											}
 											else if (input2 == 3)
+											{
+												std::cout << "请输入销售经理手下销售人员的id（正整数），以空格或回车隔开，任意字符结尾\n";
+												unsigned int id;
+												while (cin >> id)
+												{
+													(*it).set_sub(id);
+												}
+												cin.clear();
+											}
+											else if (input2 == 4)
 											{
 												return;
 											}
@@ -926,212 +1037,250 @@ auto mod_modify(vector<employee*>& employees) -> void
 		}
 		else
 		{
-		for (auto& it : employees)
-		{
-			if (it->get_id() == stoi(target))
+			for (auto& it : employees)
 			{
-				find = true;
-				it->print();
-				std::cout << "确定修改吗？\n1 (YES)  2 (NO)\n";
-				auto input = 0;
-				try
+				if (it->get_id() == stoi(target))
 				{
-					while (true)
+					find = true;
+					it->print();
+					std::cout << "确定修改吗？\n1 (YES)  2 (NO)\n";
+					auto input = 0;
+					try
 					{
-						std::cin >> input;
-						if (input == 1)
+						while (true)
 						{
-							//Manager
-							if (it->get_position() == enum_position[0])
+							std::cin >> input;
+							if (input == 1)
 							{
-								auto input2 = 0;
-								try
+								//Manager
+								if (it->get_position() == enum_position[0])
 								{
-									while (true)
+									auto input2 = 0;
+									try
 									{
-										std::cout << "1 改名  2 改变等级  3 返回\n";
-										std::cin >> input2;
-										if (input2 == 1)
+										while (true)
 										{
-											std::cout << "请输入姓名: \n";
-											string new_name;
-											std::cin >> new_name;
-											it->set_name(new_name);
-											//return;
-										}
-										else if (input2 == 2)
-										{
-											std::cout << "请输入等级: \n";
-											auto grade = 0;
-											std::cin >> grade;
-											it->promote(grade);
-											it->pay();
-										}
-										else if (input2 == 3)
-										{
-											return;
-										}
-										else
-										{
-											throw input_error();
+											std::cout << "1 改名  2 改变等级  3 升级为销售经理  4 返回\n";
+											std::cin >> input2;
+											if (input2 == 1)
+											{
+												std::cout << "请输入姓名: \n";
+												string new_name;
+												std::cin >> new_name;
+												it->set_name(new_name);
+												//return;
+											}
+											else if (input2 == 2)
+											{
+												std::cout << "请输入等级: \n";
+												auto grade = 0;
+												std::cin >> grade;
+												it->promote(grade);
+												it->pay();
+											}
+											else if (input2 == 3)
+											{
+												employee* pemp = new sales_manager(it);
+												employees.insert(std::find(employees.begin(), employees.end(), it),
+												                 pemp);
+												employees.erase(remove(employees.begin(), employees.end(), it),
+												                employees.end());
+												cout << "已改变职位，按任意键后结束并返回\n";
+												char c[1000];
+												if (std::cin.getline(c, 1000))
+												{
+													return;
+												}
+											}
+											else if (input == 4)
+											{
+												return;
+											}
+											else
+											{
+												throw input_error();
+											}
 										}
 									}
-								}
-								catch (input_error& i)
-								{
-									std::cerr << i.what() << '\n';
-								}
-							}
-							if (it->get_position() == enum_position[1])
-							{
-								auto input2 = 0;
-								try
-								{
-									while (true)
+									catch (input_error& i)
 									{
-										std::cout << "1 改名  2 改变等级  3 改变销售额  4 返回\n";
-										std::cin >> input2;
-										if (input2 == 1)
-										{
-											std::cout << "请输入姓名: \n";
-											string new_name;
-											std::cin >> new_name;
-											it->set_name(new_name);
-											//return;
-										}
-										else if (input2 == 2)
-										{
-											std::cout << "请输入等级: \n";
-											auto grade = 0;
-											std::cin >> grade;
-											it->promote(grade);
-											it->pay();
-										}
-										else if (input2 == 3)
-										{
-											std::cout << "请输入销售额: \n";
-											auto sales_value = 0.0;
-											std::cin >> sales_value;
-											it->set_sales_value(sales_value);
-											it->pay();
-										}
-										else if (input2 == 4)
-										{
-											return;
-										}
-										else
-										{
-											throw input_error();
-										}
+										std::cerr << i.what() << '\n';
 									}
 								}
-								catch (input_error& i)
+								if (it->get_position() == enum_position[1])
 								{
-									std::cerr << i.what() << '\n';
-								}
-							}
-							if (it->get_position() == enum_position[3])
-							{
-								auto input2 = 0;
-								try
-								{
-									while (true)
+									auto input2 = 0;
+									try
 									{
-										std::cout << "1 改名  2 改变等级  3 改变工作时长  4 返回\n";
-										std::cin >> input2;
-										if (input2 == 1)
+										while (true)
 										{
-											std::cout << "请输入姓名: \n";
-											string new_name;
-											std::cin >> new_name;
-											it->set_name(new_name);
-											//return;
-										}
-										else if (input2 == 2)
-										{
-											std::cout << "请输入等级: \n";
-											auto grade = 0;
-											std::cin >> grade;
-											it->promote(grade);
-											it->pay();
-										}
-										else if (input2 == 3)
-										{
-											std::cout << "请输入月工作时长: \n";
-											auto work_hours_per_month = 0;
-											std::cin >> work_hours_per_month;
-											it->set_work_hours_per_month(work_hours_per_month);
-											it->pay();
-										}
-										else if (input2 == 4)
-										{
-											return;
-										}
-										else
-										{
-											throw input_error();
+											std::cout << "1 改名  2 改变等级  3 改变销售额  4 升级为销售经理  5 返回\n";
+											std::cin >> input2;
+											if (input2 == 1)
+											{
+												std::cout << "请输入姓名: \n";
+												string new_name;
+												std::cin >> new_name;
+												it->set_name(new_name);
+												//return;
+											}
+											else if (input2 == 2)
+											{
+												std::cout << "请输入等级: \n";
+												auto grade = 0;
+												std::cin >> grade;
+												it->promote(grade);
+												it->pay();
+											}
+											else if (input2 == 3)
+											{
+												std::cout << "请输入销售额: \n";
+												auto sales_value = 0.0;
+												std::cin >> sales_value;
+												it->set_sales_value(sales_value);
+												it->pay();
+											}
+											else if (input2 == 4)
+											{
+												employee* pemp = new sales_manager(it);
+												employees.insert(std::find(employees.begin(), employees.end(), it),
+												                 pemp);
+												employees.erase(remove(employees.begin(), employees.end(), it),
+												                employees.end());
+												cout << "已改变职位，按任意键后结束并返回\n";
+												char c[1000];
+												if (std::cin.getline(c, 1000))
+												{
+													return;
+												}
+											}
+											else if (input2 == 5)
+											{
+												return;
+											}
+											else
+											{
+												throw input_error();
+											}
 										}
 									}
-								}
-								catch (input_error& i)
-								{
-									std::cerr << i.what() << '\n';
-								}
-							}
-							if (it->get_position() == enum_position[0])
-							{
-								auto input2 = 0;
-								try
-								{
-									while (true)
+									catch (input_error& i)
 									{
-										std::cout << "1 改名  2 改变等级  3 返回\n";
-										std::cin >> input2;
-										if (input2 == 1)
-										{
-											std::cout << "请输入姓名: \n";
-											string new_name;
-											std::cin >> new_name;
-											it->set_name(new_name);
-											//return;
-										}
-										else if (input2 == 2)
-										{
-											std::cout << "请输入等级: \n";
-											auto grade = 0;
-											std::cin >> grade;
-											it->promote(grade);
-											it->pay();
-										}
-										else if (input2 == 3)
-										{
-											return;
-										}
-										else
-										{
-											throw input_error();
-										}
+										std::cerr << i.what() << '\n';
 									}
 								}
-								catch (input_error& i)
+								if (it->get_position() == enum_position[2])
 								{
-									std::cerr << i.what() << '\n';
+									auto input2 = 0;
+									try
+									{
+										while (true)
+										{
+											std::cout << "1 改名  2 改变等级  3 改变工作时长  4 返回\n";
+											std::cin >> input2;
+											if (input2 == 1)
+											{
+												std::cout << "请输入姓名: \n";
+												string new_name;
+												std::cin >> new_name;
+												it->set_name(new_name);
+												//return;
+											}
+											else if (input2 == 2)
+											{
+												std::cout << "请输入等级: \n";
+												auto grade = 0;
+												std::cin >> grade;
+												it->promote(grade);
+												it->pay();
+											}
+											else if (input2 == 3)
+											{
+												std::cout << "请输入月工作时长: \n";
+												auto work_hours_per_month = 0;
+												std::cin >> work_hours_per_month;
+												it->set_work_hours_per_month(work_hours_per_month);
+												it->pay();
+											}
+											else if (input2 == 4)
+											{
+												return;
+											}
+											else
+											{
+												throw input_error();
+											}
+										}
+									}
+									catch (input_error& i)
+									{
+										std::cerr << i.what() << '\n';
+									}
+								}
+								if (it->get_position() == enum_position[3])
+								{
+									auto input2 = 0;
+									try
+									{
+										while (true)
+										{
+											std::cout << "1 改名  2 改变等级  3 添加下属销售  4 返回\n";
+											std::cin >> input2;
+											if (input2 == 1)
+											{
+												std::cout << "请输入姓名: \n";
+												string new_name;
+												std::cin >> new_name;
+												it->set_name(new_name);
+												//return;
+											}
+											else if (input2 == 2)
+											{
+												std::cout << "请输入等级: \n";
+												auto grade = 0;
+												std::cin >> grade;
+												it->promote(grade);
+												it->pay();
+											}
+											else if (input2 == 3)
+											{
+												std::cout << "请输入销售经理手下销售人员的id（正整数），以空格或回车隔开，任意字符结尾\n";
+												unsigned int id;
+												while (cin >> id)
+												{
+													(*it).set_sub(id);
+												}
+												cin.clear();
+											}
+											else if (input2 == 4)
+											{
+												return;
+											}
+											else
+											{
+												throw input_error();
+											}
+										}
+									}
+									catch (input_error& i)
+									{
+										std::cerr << i.what() << '\n';
+									}
 								}
 							}
+							if (input == 2)
+							{
+								return;
+							}
+							throw input_error();
 						}
-						if (input == 2)
-						{
-							return;
-						}
-						throw input_error();
+					}
+					catch (input_error& i)
+					{
+						std::cerr << i.what() << '\n';
 					}
 				}
-				catch (input_error& i)
-				{
-					std::cerr << i.what() << '\n';
-				}
 			}
-		}
 		}
 		if (!find)
 		{
