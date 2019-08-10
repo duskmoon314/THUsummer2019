@@ -45,6 +45,13 @@ employee::employee(const int grade, const string& name, const string& position)
 	valid_ = false;
 }
 
+/**
+ * \brief 
+ * \param id 
+ * \param grade 
+ * \param name 
+ * \param position 
+ */
 employee::employee(const int id, const int grade, const string& name, const string& position)
 {
 	individual_emp_no_ = id;
@@ -61,32 +68,64 @@ employee::~employee()
 {
 }
 
+/**
+ * \brief 
+ * \param grade 
+ */
 void employee::promote(const int grade)
 {
 	grade_ = grade - 1;
 	promote();
 }
 
+/**
+ * \brief 
+ */
 void employee::initial()
 {
 	total_emp_no_ = 1;
 }
 
-int employee::get_id()
+/**
+ * \brief 
+ * \return 
+ */
+int employee::get_id() const
 {
 	return individual_emp_no_;
 }
 
-string employee::get_position()
+/**
+ * \brief 
+ * \return 
+ */
+string employee::get_position() const
 {
 	return position_;
 }
 
-string employee::get_name()
+/**
+ * \brief 
+ * \return 
+ */
+string employee::get_name() const
 {
 	return name_;
 }
 
+/**
+ * \brief 
+ * \return 
+ */
+int employee::get_grade() const
+{
+	return grade_;
+}
+
+/**
+ * \brief 
+ * \param name 
+ */
 void employee::set_name(string& name)
 {
 	name_ = name;
@@ -100,6 +139,10 @@ void employee::set_work_hours_per_month(int)
 {
 }
 
+void employee::set_sub(unsigned it)
+{
+}
+
 int manager::total_manager_no_ = 0;
 
 /**
@@ -107,8 +150,6 @@ int manager::total_manager_no_ = 0;
  */
 manager::manager(): employee()
 {
-	position_ = "Manager";
-	++total_manager_no_;
 }
 
 // * \brief 
@@ -132,6 +173,12 @@ manager::manager(const int grade, const string& name): employee(grade, name, "Ma
 	(*this).manager::pay();
 }
 
+/**
+ * \brief 
+ * \param id 
+ * \param grade 
+ * \param name 
+ */
 manager::manager(const int id, const int grade, const string& name): employee(id, grade, name, "Manager")
 {
 	++total_manager_no_;
@@ -179,6 +226,10 @@ void manager::print()
 	cout << setw(2) << grade_ << ' ' << setw(6) << monthly_salary_ << '\n';
 }
 
+/**
+ * \brief 
+ * \param fs 
+ */
 void manager::write(fstream& fs)
 {
 	fs << *this;
@@ -206,6 +257,9 @@ ostream& operator<<(ostream& output, const manager& manager)
 
 int technician::total_tech_no_ = 0;
 
+/**
+ * \brief 
+ */
 technician::technician(): employee()
 {
 	position_ = "Technician";
@@ -214,6 +268,10 @@ technician::technician(): employee()
 	++total_tech_no_;
 }
 
+/**
+ * \brief 
+ * \param technician 
+ */
 technician::technician(const technician& technician)
 	: employee(technician)
 {
@@ -221,18 +279,30 @@ technician::technician(const technician& technician)
 	pay_per_hour_ = technician.pay_per_hour_;
 }
 
-technician::
-technician(const int grade, const string& name, const int work_hours_per_month): employee(grade, name, "Technician"),
-                                                                                 work_hours_per_month_(
-	                                                                                 work_hours_per_month)
+/**
+ * \brief 
+ * \param grade 
+ * \param name 
+ * \param work_hours_per_month 
+ */
+technician::technician(const int grade, const string& name, const int work_hours_per_month):
+	employee(grade, name, "Technician"),
+	work_hours_per_month_(
+		work_hours_per_month)
 {
 	++total_tech_no_;
 	pay_per_hour_ = 260 * log10(10.0 * double(grade_));
 	(*this).technician::pay();
 }
 
-technician::
-technician(int id, const int grade, const string& name, const int work_hours_per_month) :
+/**
+ * \brief 
+ * \param id 
+ * \param grade 
+ * \param name 
+ * \param work_hours_per_month 
+ */
+technician::technician(int id, const int grade, const string& name, const int work_hours_per_month) :
 	employee(grade, name, "Technician"), work_hours_per_month_(work_hours_per_month)
 {
 	++total_tech_no_;
@@ -240,37 +310,63 @@ technician(int id, const int grade, const string& name, const int work_hours_per
 	(*this).technician::pay();
 }
 
+/**
+ * \brief 
+ */
 technician::~technician()
 {
 	--total_tech_no_;
 }
 
+/**
+ * \brief 
+ */
 void technician::promote()
 {
 	++grade_;
 	pay_per_hour_ = 260 * log10(10.0 * double(grade_));
 }
 
+/**
+ * \brief 
+ */
 void technician::pay()
 {
 	monthly_salary_ = pay_per_hour_ * work_hours_per_month_;
 }
 
+/**
+ * \brief 
+ */
 void technician::print()
 {
 	cout << *this;
 }
 
+/**
+ * \brief 
+ * \param fs 
+ */
 void technician::write(fstream& fs)
 {
 	fs << *this;
 }
 
+/**
+ * \brief 
+ * \param work_hours_per_month 
+ */
 void technician::set_work_hours_per_month(const int work_hours_per_month)
 {
 	work_hours_per_month_ = work_hours_per_month;
 }
 
+/**
+ * \brief 
+ * \param output 
+ * \param technician 
+ * \return 
+ */
 ostream& operator<<(ostream& output, const technician& technician)
 {
 	output << resetiosflags(ios::right) << setiosflags(ios::left);
@@ -285,10 +381,17 @@ ostream& operator<<(ostream& output, const technician& technician)
 	return output;
 }
 
+/**
+ * \brief 
+ */
 salesman::salesman(): employee(), sales_value_(0), commission_rate_(0)
 {
 }
 
+/**
+ * \brief 
+ * \param salesman 
+ */
 salesman::salesman(const salesman& salesman)
 	: employee(salesman)
 {
@@ -296,6 +399,12 @@ salesman::salesman(const salesman& salesman)
 	commission_rate_ = salesman.commission_rate_;
 }
 
+/**
+ * \brief 
+ * \param grade 
+ * \param name 
+ * \param sales_value 
+ */
 salesman::salesman(const int grade, const string& name, const double sales_value): employee(grade, name, "Salesman"),
                                                                                    sales_value_(sales_value)
 {
@@ -303,6 +412,13 @@ salesman::salesman(const int grade, const string& name, const double sales_value
 	(*this).salesman::pay();
 }
 
+/**
+ * \brief 
+ * \param id 
+ * \param grade 
+ * \param name 
+ * \param sales_value 
+ */
 salesman::salesman(const int id, const int grade, const string& name, const double sales_value):
 	employee(id, grade, name, "Salesman"),
 	sales_value_(sales_value)
@@ -314,32 +430,55 @@ salesman::salesman(const int id, const int grade, const string& name, const doub
 salesman::~salesman()
 = default;
 
+/**
+ * \brief 
+ */
 void salesman::promote()
 {
 	++grade_;
 	commission_rate_ = 0.05 * pow(1.05, double(grade_) - 1);
 }
 
+/**
+ * \brief 
+ */
 void salesman::pay()
 {
 	monthly_salary_ = commission_rate_ * sales_value_;
 }
 
+/**
+ * \brief 
+ */
 void salesman::print()
 {
 	cout << *this;
 }
 
+/**
+ * \brief 
+ * \param fs 
+ */
 void salesman::write(fstream& fs)
 {
 	fs << *this;
 }
 
+/**
+ * \brief 
+ * \param sales_value 
+ */
 void salesman::set_sales_value(const double sales_value)
 {
 	sales_value_ = sales_value;
 }
 
+/**
+ * \brief 
+ * \param output 
+ * \param salesman 
+ * \return 
+ */
 ostream& operator<<(ostream& output, const salesman& salesman)
 {
 	output << resetiosflags(ios::right) << setiosflags(ios::left);
@@ -356,11 +495,18 @@ ostream& operator<<(ostream& output, const salesman& salesman)
 
 int sales_manager::total_sales_manager_no_ = 0;
 
+/**
+ * \brief 
+ */
 sales_manager::sales_manager(): employee(), total_sales_value_(0), commission_rate_(0)
 {
 	++total_sales_manager_no_;
 }
 
+/**
+ * \brief 
+ * \param sales_manager 
+ */
 sales_manager::sales_manager(const sales_manager& sales_manager)
 	: employee(sales_manager), manager(sales_manager), salesman(sales_manager)
 {
@@ -368,53 +514,115 @@ sales_manager::sales_manager(const sales_manager& sales_manager)
 	sales_manager::commission_rate_ = sales_manager.sales_manager::commission_rate_;
 }
 
-sales_manager::
-sales_manager(const int grade, const string& name, const double total_sales_value):
+/**
+ * \brief 
+ * \param grade 
+ * \param name 
+ * \param total_sales_value 
+ */
+sales_manager::sales_manager(const int grade, const string& name, const double total_sales_value):
 	employee(grade, name, "Sales_manager"), total_sales_value_(total_sales_value)
 {
 	++total_sales_manager_no_;
+	commission_rate_ = 0.05 * pow(1.05, double(grade_) - 1);
 	(*this).sales_manager::pay();
 }
 
-sales_manager::
-sales_manager(int id, int grade, const string& name, double total_sales_value):
+/**
+ * \brief 
+ * \param id 
+ * \param grade 
+ * \param name 
+ * \param total_sales_value 
+ */
+sales_manager::sales_manager(int id, int grade, const string& name, double total_sales_value):
 	employee(id, grade, name, "Sales_manager"), total_sales_value_(total_sales_value)
 {
 	++total_sales_manager_no_;
+	commission_rate_ = 0.05 * pow(1.05, double(grade_) - 1);
 	(*this).sales_manager::pay();
 }
 
+/**
+ * \brief 
+ * \param employee 
+ */
+sales_manager::sales_manager(const employee* employee): total_sales_value_(0)
+{
+	--total_emp_no_;
+	individual_emp_no_ = employee->get_id();
+	name_ = employee->get_name();
+	grade_ = employee->get_grade();
+	commission_rate_ = 0.05 * pow(1.05, double(grade_) - 1);
+	(*this).sales_manager::pay();
+}
+
+/**
+ * \brief 
+ */
 sales_manager::~sales_manager()
 {
 	--total_sales_manager_no_;
 }
 
+/**
+ * \brief 
+ */
 void sales_manager::promote()
 {
 	++grade_;
 	sales_manager::commission_rate_ = 0.04 * pow(1.05, double(grade_) - 1);
 }
 
+/**
+ * \brief 
+ */
 void sales_manager::pay()
 {
 	monthly_salary_ = 8000 + 1000 * (double(grade_) - 1) + sales_manager::commission_rate_ * total_sales_value_;
 }
 
+/**
+ * \brief 
+ */
 void sales_manager::print()
 {
 	cout << *this;
 }
 
+/**
+ * \brief 
+ * \param fs 
+ */
 void sales_manager::write(fstream& fs)
 {
 	fs << *this;
 }
 
+/**
+ * \brief 
+ * \param sales_value 
+ */
 void sales_manager::set_sales_value(const double sales_value)
 {
 	total_sales_value_ = sales_value;
 }
 
+/**
+ * \brief 
+ * \param id 
+ */
+void sales_manager::set_sub(const unsigned int id)
+{
+	subordinate_salesman.push_back(id);
+}
+
+/**
+ * \brief 
+ * \param output 
+ * \param sales_manager 
+ * \return 
+ */
 ostream& operator<<(ostream& output, const sales_manager& sales_manager)
 {
 	output << resetiosflags(ios::right) << setiosflags(ios::left);
@@ -426,16 +634,16 @@ ostream& operator<<(ostream& output, const sales_manager& sales_manager)
 	output << resetiosflags(ios::left) << setiosflags(ios::right);
 	output << setw(2) << sales_manager.grade_ << ' ' << setw(6) << sales_manager.monthly_salary_ << ' ';
 	output << setw(4) << sales_manager.commission_rate_ << ' ' << setw(6) << sales_manager.total_sales_value_ << ' ';
-	cout << '[';
+	output << '[';
 	if (sales_manager.subordinate_salesman.empty())
-		cout << ']';
+		output << ']';
 	else
 	{
 		for (const auto& salesman : sales_manager.subordinate_salesman)
 		{
-			cout << salesman << ',';
+			output << salesman << ',';
 		}
-		cout << "\b]";
+		output << "]";
 	}
 	return output;
 }

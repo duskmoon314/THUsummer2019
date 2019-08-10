@@ -23,15 +23,17 @@ public:
 	virtual void promote(int grade);
 	virtual void pay() = 0;
 	virtual void print() = 0;
-	virtual void write(fstream & fs) = 0;
-	void initial();
+	virtual void write(fstream& fs) = 0;
+	static void initial();
 
-	int get_id();
-	string get_position();
-	string get_name();
+	int get_id() const;
+	string get_position() const;
+	string get_name() const;
+	int get_grade() const;
 	void set_name(string& name);
 	virtual void set_sales_value(double);
 	virtual void set_work_hours_per_month(int);
+	virtual void set_sub(unsigned int it);
 
 protected:
 	static int total_emp_no_;
@@ -55,7 +57,7 @@ public:
 	virtual void promote() override;
 	virtual void pay() override;
 	virtual void print() override;
-	void write(fstream & fs) override;
+	void write(fstream& fs) override;
 
 	friend ostream& operator<<(ostream& output, const manager& manager);
 
@@ -112,18 +114,20 @@ public:
 	sales_manager(int id, int grade, const string& name, double total_sales_value);
 	//sales_manager(const manager& manager);
 	//sales_manager(const salesman& salesman);
+	sales_manager(const employee* employee);
 	~sales_manager();
 	void promote() override;
 	void pay() override;
 	void print() override;
 	void write(fstream& fs) override;
 	void set_sales_value(double) override;
+	void set_sub(unsigned int id) override;
 	friend ostream& operator<<(ostream& output, const sales_manager& sales_manager);
 	vector<int> subordinate_salesman;
 protected:
 	static int total_sales_manager_no_;
 	double total_sales_value_;
-	double commission_rate_{};
+	double commission_rate_;
 };
 
 #endif /* EMP_H_ */
