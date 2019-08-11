@@ -3,25 +3,29 @@
 void game_io::run()
 {
 	system("cls");
-	index();
-	auto input = 0;
+	
 	while (true)
 	{
+		index();
+		auto input = 0;
 		std::cin >> input;
 		if (input == 1)
 		{
 			play();
 		}
-		if(input == 2)
+		else if(input == 2)
 		{
 			load();
 			play();
 		}
-		if (input == 3)
+		else if (input == 3)
 		{
 			return;
 		}
-		std::cout << "输入错误\n";
+		else {
+			std::cout << "输入错误\n";
+		}
+
 	}
 }
 
@@ -112,11 +116,12 @@ void game_io::play()
 			{
 				save();
 				std::cout << "存储完毕，键入1返回主菜单\n";
-				auto input = 0;
+				std::cin.ignore();
+				auto input2 = 0;
 				while(true)
 				{
-					std::cin >> input;
-					if(input == 1)
+					std::cin >> input2;
+					if(input2 == 1)
 					{
 						return;
 					}
@@ -190,5 +195,6 @@ void game_io::save()
 	std::cin >> file_name;
 	std::fstream fs;
 	fs.open(file_name.c_str(), std::ios::out);
-	fs << history;
+	history.write(fs);
+	fs.close();
 }

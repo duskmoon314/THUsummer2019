@@ -4,7 +4,7 @@
 class play_history_node : virtual public point
 {
 public:
-	play_history_node(int r, point &piece_point);
+	play_history_node(int r, point& piece_point);
 	~play_history_node();
 	void set_prev(play_history_node* prev_node);
 	void set_prev(play_history_node& prev_node);
@@ -14,7 +14,7 @@ public:
 	play_history_node* get_next() const;
 
 protected:
-	int rank_;//第几步
+	int rank_; //第几步
 	play_history_node* prev_node_;
 	play_history_node* next_node_;
 };
@@ -25,13 +25,14 @@ public:
 	play_history_list();
 	~play_history_list();
 
-	void push(point &piece_point);
+	void push(point& piece_point);
 	point pop();
 	void pop(int times);
 	void history_pop(int times, board& board);
 	int size() const;
 
 	friend std::ostream& operator<<(std::ostream& output, const play_history_list& list);
+	void write(std::fstream& fs);
 
 private:
 	int length_ = 0;

@@ -1,2 +1,6 @@
-﻿  gameIO.cpp
+﻿  3D_Gomoku.cpp
+  game.cpp
+  gameIO.cpp
+  play_history.cpp
+  正在生成代码...
   3D_Gomoku.vcxproj -> D:\Files\Programs\THUsummer2019\3D_Gomoku\Debug\3D_Gomoku.exe

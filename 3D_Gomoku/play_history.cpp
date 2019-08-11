@@ -43,7 +43,7 @@ play_history_list::play_history_list(): head_(nullptr), tail_(nullptr)
 
 play_history_list::~play_history_list()
 {
-	for(auto i =0; i<length_;++i)
+	for (auto i = 0; i < length_; ++i)
 	{
 		this->pop();
 	}
@@ -73,6 +73,7 @@ point play_history_list::pop()
 	const auto q = tail_;
 	point point(q->get_x(), q->get_y(), q->get_z());
 	tail_ = tail_->get_prev();
+	tail_->set_next(nullptr);
 	delete q;
 	--length_;
 	return point;
@@ -80,7 +81,7 @@ point play_history_list::pop()
 
 void play_history_list::pop(const int times)
 {
-	for(auto i = 0; i < times; ++i)
+	for (auto i = 0; i < times; ++i)
 	{
 		this->pop();
 	}
@@ -100,15 +101,29 @@ int play_history_list::size() const
 	return length_;
 }
 
+void play_history_list::write(std::fstream& fs)
+{
+	if (head_ == nullptr)return;
+	auto temp = head_;
+	do
+	{
+		temp->write(fs);
+		fs << '\n';
+		temp = temp->get_next();
+	} while (temp != nullptr);
+	return;
+}
+
 std::ostream& operator<<(std::ostream& output, const play_history_list& list)
 {
 	if (list.head_ == nullptr)return output;
 	auto temp = list.head_;
 	do
 	{
-		output << temp << '\n';
+		temp->print();
+		output << '\n';
 		temp = temp->get_next();
 	}
-	while (temp->get_next()!=nullptr);
+	while (temp != nullptr);
 	return output;
 }
