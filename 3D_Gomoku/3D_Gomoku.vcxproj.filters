@@ -24,12 +24,18 @@
     <ClCompile Include="gameIO.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="play_history.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="gameIO.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="play_history.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

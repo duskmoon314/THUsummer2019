@@ -7,5 +7,4 @@ int main()
 {
 	game_io main;
 	main.run();
-	
 }

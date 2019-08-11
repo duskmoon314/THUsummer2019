@@ -126,10 +126,12 @@
     <ClCompile Include="3D_Gomoku.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="gameIO.cpp" />
+    <ClCompile Include="play_history.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game.h" />
     <ClInclude Include="gameIO.h" />
+    <ClInclude Include="play_history.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
